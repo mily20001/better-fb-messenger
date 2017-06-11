@@ -18,6 +18,8 @@
     "browserify": "^14.4.0",
     "eslint": "^3.19.0",
     "facebook-chat-api": "^1.4.0",
+    "mkdirp": "^0.5.1",
     "nodemon": "^1.11.0"
-  }
+  },
+  "postinstall": "./node_modules/.bin/mkdir ./backend/build/ ./frontend/build/"
 }
