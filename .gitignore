@@ -1,0 +1,9 @@
+*.log
+npm-debug.log*
+node_modules/
+.npm
+.eslintcache
+.env
+.idea
+backend/build/*.js
+frontend/build/*.js
