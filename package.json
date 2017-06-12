@@ -19,5 +19,8 @@
     "facebook-chat-api": "^1.4.0",
     "mkdirp": "^0.5.1",
     "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "node-notifier": "^5.1.2"
   }
 }
