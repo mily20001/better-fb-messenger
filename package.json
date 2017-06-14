@@ -36,6 +36,7 @@
   "dependencies": {
     "node-notifier": "^5.1.2",
     "react": "^15.6.0",
+    "react-bootstrap": "^0.31.0",
     "react-dom": "^15.6.0"
   }
 }
