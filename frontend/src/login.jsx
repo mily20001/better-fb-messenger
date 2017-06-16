@@ -20,6 +20,21 @@ export default class Login extends React.Component {
         };
     }
 
+    getValidationState(field) {
+        if (this.state[field].length < 1) return null;
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const wyn = re.test(this.state[field]);
+        if (wyn === false) {
+            return 'warning';
+        }
+
+        return 'success';
+    }
+
+    sendLogin() {
+        console.log({ ...this.state, type: 'login' });
+    }
+
     handleInputChange(field, newValue) {
         this.setState({ [field]: newValue });
     }
@@ -34,16 +49,17 @@ export default class Login extends React.Component {
                         <Well style={wellStyle}>
                             <h2>Facebook login</h2>
                             <Form horizontal>
-                                <FormGroup>
+                                <FormGroup validationState={this.getValidationState('mail')}>
                                     <Col componentClass={ControlLabel} xs={2}>
                                         Email:
                                     </Col>
                                     <Col sm={10} xs={12}>
                                         <FormControl
                                             type="email"
-                                            onChange={e => this.handleInputChange('mail', e)}
+                                            onChange={e => this.handleInputChange('mail', e.target.value)}
                                             placeholder="Email"
                                         />
+                                        <FormControl.Feedback />
                                     </Col>
                                 </FormGroup>
                                 <FormGroup>
@@ -53,14 +69,20 @@ export default class Login extends React.Component {
                                     <Col sm={10} xs={12}>
                                         <FormControl
                                             type="password"
-                                            onChange={e => this.handleInputChange('password', e)}
+                                            onChange={e => this.handleInputChange('password', e.target.value)}
                                             placeholder="Password"
                                         />
                                     </Col>
                                 </FormGroup>
                                 <FormGroup>
                                     <Col xs={12} sm={3} smOffset={9}>
-                                        <Button bsSize="large" block>Login</Button>
+                                        <Button
+                                            bsSize="large"
+                                            block
+                                            onClick={() => { this.sendLogin(); }}
+                                        >
+                                            Login
+                                        </Button>
                                     </Col>
                                 </FormGroup>
                             </Form>

@@ -1,7 +1,7 @@
 {
     "events":
     {
-        "restart": "node ./scripts/notify.js 'Better Facebook Messenger development' 'Frontend has been rebuilt'"
+        "exit": "node ./scripts/notify.js 'Better Facebook Messenger development' 'Frontend has been rebuilt'"
     },
     "verbose": true,
     "ignore": ["*.log", ".idea/", "backend/"]

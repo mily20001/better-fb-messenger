@@ -1,7 +1,7 @@
 {
     "events":
     {
-        "restart": "node ./scripts/notify.js 'Better Facebook Messenger development' 'Server has been restarted'"
+        "exit": "node ./scripts/notify.js 'Better Facebook Messenger development' 'Server has been restarted'"
     },
     "verbose": true,
     "ignore": ["*.log", ".idea/", "frontend/"]
