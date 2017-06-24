@@ -36,8 +36,11 @@
   },
   "dependencies": {
     "node-notifier": "^5.1.2",
+    "prop-types": "^15.5.10",
     "react": "^15.6.0",
     "react-bootstrap": "^0.31.0",
-    "react-dom": "^15.6.0"
+    "react-dom": "^15.6.0",
+    "react-router-dom": "^4.1.1",
+    "websocket": "^1.0.24"
   }
 }

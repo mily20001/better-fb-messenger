@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-build_frontend_cmd="node_modules/.bin/browserify -o ./frontend/build/login.js -e ./frontend/src/login_main.jsx --extension=.jsx -t babelify";
+build_frontend_cmd="node_modules/.bin/browserify -o ./frontend/build/index.js -e ./frontend/src/main_app.jsx --extension=.jsx -t babelify";
 
 eval "${build_frontend_cmd}";
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
     Button,
     Grid,
@@ -33,6 +34,7 @@ export default class Login extends React.Component {
 
     sendLogin() {
         console.log({ ...this.state, type: 'login' });
+        this.props.webSocket.send(JSON.stringify({ ...this.state, type: 'login' }));
     }
 
     handleInputChange(field, newValue) {
@@ -93,3 +95,7 @@ export default class Login extends React.Component {
         );
     }
 }
+
+Login.propTypes = {
+    webSocket: PropTypes.object.isRequired,
+};
