@@ -3,12 +3,29 @@ import fs from 'fs';
 import facebookChatApi from 'facebook-chat-api';
 import * as websocket from 'websocket';
 
-const userLogged = false;
+let userLogged = false;
+let fbApi = null;
+
+const savedSessionFile = 'facebookSession.json';
+
+console.log('Trying to restore session');
+if (fs.existsSync(savedSessionFile)) {
+    fbApi = facebookChatApi({ appState: JSON.parse(fs.readFileSync(savedSessionFile, 'utf8')) }, (err, api) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        console.log('Restored session correctly');
+        fbApi = api;
+        userLogged = true;
+    });
+} else {
+    console.log('Session file not found');
+}
 
 let wsClientsCount = 0;
 const wsClients = {};
-
-const serverName = 'localhost:8888';
 
 const staticList = {
     '/index.html': 'frontend/build/index.html',
@@ -33,8 +50,10 @@ new websocket.server({
 
     wsClients[id] = connection;
 
+    connection.sendUTF(JSON.stringify({ type: 'hello', userLogged }));
+
     connection.on('message', (message) => {
-        console.log(`Recived message: ${message.utf8Data}`);
+        console.log(`Received message: ${message.utf8Data}`);
         const data = message.utf8Data;
         let parsedData;
 
@@ -45,13 +64,44 @@ new websocket.server({
             return;
         }
 
-        if (parsedData.type === undefined) {
-            console.log('Error while parsing data from websocket: message has no type');
-            return;
+        switch (parsedData.type) {
+
+            case 'login': {
+                const credentials = {
+                    email: parsedData.email,
+                    password: parsedData.password,
+                };
+                fbApi = facebookChatApi(credentials, (err, api) => {
+                    if (err) {
+                        console.error(err);
+                        connection.sendUTF(JSON.stringify({ type: 'error', error: err.error }));
+                        return;
+                    }
+
+                    console.log('Logged in correctly');
+                    connection.sendUTF(JSON.stringify({ type: 'info', info: 'Logged in' }));
+                    fs.writeFileSync(savedSessionFile, JSON.stringify(api.getAppState()));
+                    fbApi = api;
+                    userLogged = true;
+                });
+                break;
+            }
+
+            case 'sendMessage': {
+                fbApi.sendMessage('test', 100000000000000);
+                break;
+            }
+
+            case undefined:
+                console.log('Error while parsing data from websocket: message has no type');
+                return;
+
+            default:
+                console.log(`Error while parsing data from websocket: message has unknown type (${parsedData.type})`);
+
+
         }
 
-
-        // wsClients.forEach((client) => { client.sendUTF(wyn); });
     });
 
     connection.on('close', (reasonCode, description) => {
@@ -63,4 +113,4 @@ new websocket.server({
     console.log(`${new Date()} Connection accepted [${id}]`);
 });
 
-console.log('XDDDDDD2242234dddddddddddddddd');
+console.log('Server started');

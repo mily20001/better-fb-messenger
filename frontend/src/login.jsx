@@ -16,7 +16,7 @@ export default class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            mail: '',
+            email: '',
             password: '',
         };
     }
@@ -51,14 +51,14 @@ export default class Login extends React.Component {
                         <Well style={wellStyle}>
                             <h2>Facebook login</h2>
                             <Form horizontal>
-                                <FormGroup validationState={this.getValidationState('mail')}>
+                                <FormGroup validationState={this.getValidationState('email')}>
                                     <Col componentClass={ControlLabel} xs={2}>
                                         Email:
                                     </Col>
                                     <Col sm={10} xs={12}>
                                         <FormControl
                                             type="email"
-                                            onChange={e => this.handleInputChange('mail', e.target.value)}
+                                            onChange={e => this.handleInputChange('email', e.target.value)}
                                             placeholder="Email"
                                         />
                                         <FormControl.Feedback />
