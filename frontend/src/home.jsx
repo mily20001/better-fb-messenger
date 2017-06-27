@@ -6,9 +6,13 @@ import {
 import {
     Button,
 } from 'react-bootstrap';
+import Thread from './thread';
 
 export default class Home extends React.Component {
     render() {
+        const threads = Object.keys(this.props.threads).map(key =>
+            <Thread messages={this.props.threads[key]} name={key} />);
+
         return (
             <div>
                 <ul>
@@ -18,6 +22,7 @@ export default class Home extends React.Component {
                 <Button onClick={() => this.props.webSocket.send(JSON.stringify({ type: 'sendMessage' }))}>
                     Send test message
                 </Button>
+                {threads}
             </div>
         );
     }
@@ -25,4 +30,5 @@ export default class Home extends React.Component {
 
 Home.propTypes = {
     webSocket: PropTypes.object.isRequired,
+    threads: PropTypes.object.isRequired,
 };

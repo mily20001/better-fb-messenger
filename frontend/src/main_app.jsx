@@ -14,12 +14,40 @@ class Main extends React.Component {
         super();
         this.state = {
             webSocketReconnectingId: 0,
+            threads: {},
         };
         this.openWebSocket = this.openWebSocket.bind(this);
     }
 
     componentWillMount() {
         this.openWebSocket();
+        this.setState({ threads: {
+            Norbi: [
+                {
+                    id: 'asdasdasdw340t',
+                    isYour: false,
+                    body: 'hejka naklejka',
+                    timestamp: 1498584764412,
+                    author: 'Norbi',
+                },
+                {
+                    id: 'asdadfsdasdw340t',
+                    isYour: true,
+                    body: 'hello',
+                    timestamp: 1498584784412,
+                    author: 'Milosz',
+                    status: 0,
+                },
+                {
+                    id: 'asdadfsdasdw341t',
+                    isYour: true,
+                    body: 'it\'s me',
+                    timestamp: 1498584794412,
+                    author: 'Milosz',
+                    status: 2,
+                },
+            ],
+        } });
     }
 
     componentDidMount() {
@@ -92,7 +120,12 @@ class Main extends React.Component {
                             key={path}
                             exact
                             path={path}
-                            render={() => <Home webSocket={this.webSocket} />}
+                            render={() =>
+                                (<Home
+                                    threads={this.state.threads}
+                                    webSocket={this.webSocket}
+                                />)
+                            }
                         />))}
                     <Route path="/login" render={() => <Login webSocket={this.webSocket} />} />
                     <NotificationSystem ref="notificationSystem" />
