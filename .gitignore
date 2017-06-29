@@ -7,4 +7,5 @@ node_modules/
 .idea
 backend/build/*.js
 frontend/build/*.js
+frontend/build/*.css
 facebookSession.json

@@ -1,0 +1,19 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#root, .full-page {
+  height: 100%;
+  width: 100%;
+}
+
+.thread-box {
+  min-width: 100px;
+  width: 250px;
+  max-width: 1000px;
+
+  min-height: 50px;
+  height: 350px;
+  max-height: 800px;
+}

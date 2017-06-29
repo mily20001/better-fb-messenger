@@ -30,6 +30,7 @@ const wsClients = {};
 const staticList = {
     '/index.html': 'frontend/build/index.html',
     '/index.js': 'frontend/build/index.js',
+    '/style.css': 'frontend/build/style.css',
 };
 
 const httpServer = http.createServer((req, res) => {

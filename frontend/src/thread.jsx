@@ -19,7 +19,7 @@ export default class Thread extends React.Component {
             />));
         return (
             <div>
-                <Panel header={this.props.name} bsStyle="primary">
+                <Panel className="thread-box" header={this.props.name} bsStyle="primary">
                     {messages}
                 </Panel>
             </div>
