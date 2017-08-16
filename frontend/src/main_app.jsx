@@ -46,6 +46,34 @@ class Main extends React.Component {
                     author: 'Milosz',
                     status: 2,
                 },
+                {
+                    id: 'asdasfadasdw340t',
+                    isYour: false,
+                    body: 'hejka naklejka',
+                    timestamp: 1498584764412,
+                    author: 'Norbi',
+                },
+                {
+                    id: 'asdasddasdw340t',
+                    isYour: false,
+                    body: 'hejka naklejka',
+                    timestamp: 1498584764412,
+                    author: 'Norbi',
+                },
+                {
+                    id: 'asdaasdasdw340t',
+                    isYour: false,
+                    body: 'hejka naklejka',
+                    timestamp: 1498584764412,
+                    author: 'Norbi',
+                },
+                {
+                    id: 'asdasdassdw340t',
+                    isYour: false,
+                    body: 'hejka naklejka',
+                    timestamp: 1498584764412,
+                    author: 'Norbi',
+                },
             ],
         } });
     }

@@ -16,4 +16,31 @@ html, body {
   min-height: 50px;
   height: 350px;
   max-height: 800px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.thread-body {
+  padding: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.thread-messages {
+  padding: 5px;
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  //overflow-wrap: normal;
+}
+
+.message-input {
+  padding: 0;
+  min-height: 34px;
+}
+
+.message {
+  margin-bottom: 5px;
 }

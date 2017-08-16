@@ -17,7 +17,7 @@ export default class Message extends React.Component {
             return (
                 <Row>
                     <Col xs={10} xsOffset={2}>
-                        <Well style={msgStyle} bsSize="small">
+                        <Well className="message" style={msgStyle} bsSize="small">
                             {this.props.body}
                         </Well>
                     </Col>
@@ -32,7 +32,7 @@ export default class Message extends React.Component {
         return (
             <Row>
                 <Col xs={10}>
-                    <Well style={msgStyle} bsSize="small">
+                    <Well className="message" style={msgStyle} bsSize="small">
                         {this.props.body}
                     </Well>
                 </Col>
