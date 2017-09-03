@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     FormControl,
-    Panel,
 } from 'react-bootstrap';
 
 import Message from './message';
@@ -14,11 +13,20 @@ export default class Thread extends React.Component {
             newMessageText: '',
         };
         this.handleNewMessageChange = this.handleNewMessageChange.bind(this);
+        this.keyPress = this.keyPress.bind(this);
     }
 
     handleNewMessageChange(e) {
         console.log(e.target.value);
         this.setState({ newMessageText: e.target.value });
+    }
+
+    keyPress(e) {
+        if (e.keyCode === 13) {
+            console.log(`enter pressed: ${e.target.value}`);
+            this.props.webSocket.send(JSON.stringify({ type: 'message', body: e.target.value, id: this.props.id }));
+            this.setState({ newMessageText: '' });
+        }
     }
 
     render() {
@@ -32,7 +40,9 @@ export default class Thread extends React.Component {
                 status={msg.status}
             />));
         return (
-            <div className="thread-box panel panel-primary">
+            <div
+                className="thread-box panel panel-primary"
+            >
                 <div className="panel-heading">{this.props.name}</div>
                 <div className="thread-body">
                     <div className="thread-messages">
@@ -45,6 +55,7 @@ export default class Thread extends React.Component {
                         placeholder="Enter message"
                         onChange={this.handleNewMessageChange}
                         className="message-input"
+                        onKeyDown={this.keyPress}
                     />
                 </div>
             </div>
@@ -55,4 +66,6 @@ export default class Thread extends React.Component {
 Thread.propTypes = {
     messages: PropTypes.array.isRequired,
     name: PropTypes.string.isRequired,
+    webSocket: PropTypes.object.isRequired,
+    id: PropTypes.number.isRequired,
 };

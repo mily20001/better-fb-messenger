@@ -19,6 +19,8 @@ html, body {
 
   display: flex;
   flex-direction: column;
+
+  resize: both;
 }
 
 .thread-body {
@@ -29,7 +31,7 @@ html, body {
 }
 
 .thread-messages {
-  padding: 5px;
+  padding: 0;
   flex-grow: 1;
   overflow-y: scroll;
   overflow-x: hidden;

@@ -6,6 +6,9 @@ import * as websocket from 'websocket';
 let userLogged = false;
 let fbApi = null;
 
+let wsClientsCount = 0;
+const wsClients = [];
+
 const savedSessionFile = 'facebookSession.json';
 
 console.log('Trying to restore session');
@@ -19,13 +22,23 @@ if (fs.existsSync(savedSessionFile)) {
         console.log('Restored session correctly');
         fbApi = api;
         userLogged = true;
+
+        api.setOptions({ listenEvents: true });
+        api.setOptions({ selfListen: true });
+
+        api.listen((err2, event) => {
+            console.log(event);
+            if (event.type === 'message') {
+                wsClients.forEach((client) => {
+                    client.sendUTF(JSON.stringify({ type: 'message', event }));
+                });
+            }
+        });
     });
 } else {
     console.log('Session file not found');
 }
 
-let wsClientsCount = 0;
-const wsClients = {};
 
 const staticList = {
     '/index.html': 'frontend/build/index.html',
@@ -88,6 +101,11 @@ new websocket.server({
                 break;
             }
 
+            case 'message': {
+                fbApi.sendMessage(parsedData.body, parsedData.id);
+                break;
+            }
+
             case 'sendMessage': {
                 fbApi.sendMessage('test', 100000000000000);
                 break;
@@ -102,7 +120,6 @@ new websocket.server({
 
 
         }
-
     });
 
     connection.on('close', (reasonCode, description) => {

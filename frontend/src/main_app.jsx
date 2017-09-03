@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import {
     BrowserRouter as Router,
     Route,
+    Redirect,
 } from 'react-router-dom';
 import NotificationSystem from 'react-notification-system';
 
@@ -21,61 +22,10 @@ class Main extends React.Component {
 
     componentWillMount() {
         this.openWebSocket();
-        this.setState({ threads: {
-            Norbi: [
-                {
-                    id: 'asdasdasdw340t',
-                    isYour: false,
-                    body: 'hejka naklejka',
-                    timestamp: 1498584764412,
-                    author: 'Norbi',
-                },
-                {
-                    id: 'asdadfsdasdw340t',
-                    isYour: true,
-                    body: 'hello',
-                    timestamp: 1498584784412,
-                    author: 'Milosz',
-                    status: 0,
-                },
-                {
-                    id: 'asdadfsdasdw341t',
-                    isYour: true,
-                    body: 'it\'s me',
-                    timestamp: 1498584794412,
-                    author: 'Milosz',
-                    status: 2,
-                },
-                {
-                    id: 'asdasfadasdw340t',
-                    isYour: false,
-                    body: 'hejka naklejka',
-                    timestamp: 1498584764412,
-                    author: 'Norbi',
-                },
-                {
-                    id: 'asdasddasdw340t',
-                    isYour: false,
-                    body: 'hejka naklejka',
-                    timestamp: 1498584764412,
-                    author: 'Norbi',
-                },
-                {
-                    id: 'asdaasdasdw340t',
-                    isYour: false,
-                    body: 'hejka naklejka',
-                    timestamp: 1498584764412,
-                    author: 'Norbi',
-                },
-                {
-                    id: 'asdasdassdw340t',
-                    isYour: false,
-                    body: 'hejka naklejka',
-                    timestamp: 1498584764412,
-                    author: 'Norbi',
-                },
-            ],
-        } });
+        this.setState({
+            userLogged: null,
+            threads: {},
+        });
     }
 
     componentDidMount() {
@@ -96,6 +46,8 @@ class Main extends React.Component {
                 const msg = JSON.parse(e.data);
                 console.log('Received message via websocket');
                 console.log(msg);
+                this.setState({ userLogged: msg.userLogged });
+
                 if (msg.type === 'hello') {
                     this.notificationSystem.addNotification({
                         title: 'Received hello message',
@@ -103,7 +55,36 @@ class Main extends React.Component {
                         level: 'info',
                     });
                 }
+                if (msg.type === 'message') {
+                    this.notificationSystem.addNotification({
+                        title: `New message from ${msg.event.senderID}`,
+                        message: msg.event.body,
+                        level: 'info',
+                    });
+
+                    const parsedMsg = {
+                        id: msg.event.messageID,
+                        isYour: msg.event.senderID !== msg.event.threadID,
+                        body: msg.event.body,
+                        timestamp: msg.event.timestamp,
+                        author: msg.event.senderID,
+                    };
+
+                    const tmpThreads = { ...this.state.threads };
+                    console.log(tmpThreads);
+                    if (!(msg.event.threadID in tmpThreads)) {
+                        tmpThreads[msg.event.threadID] = {
+                            name: msg.event.threadID,
+                            messages: [],
+                        };
+                    }
+                    tmpThreads[msg.event.threadID].messages.push(parsedMsg);
+                    this.setState({ threads: tmpThreads });
+                }
                 if (msg.type === 'info') {
+                    if (msg.info === 'Logged in') {
+                        this.setState({ userLogged: true});
+                    }
                     this.notificationSystem.addNotification({
                         message: msg.info,
                         level: 'info',
@@ -156,6 +137,7 @@ class Main extends React.Component {
                             }
                         />))}
                     <Route path="/login" render={() => <Login webSocket={this.webSocket} />} />
+                    {(this.state.userLogged === false) ? <Redirect push to="/login" /> : <Redirect push to="/" />}
                     <NotificationSystem ref="notificationSystem" />
                 </div>
             </Router>

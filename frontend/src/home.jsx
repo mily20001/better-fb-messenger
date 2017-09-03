@@ -11,7 +11,12 @@ import Thread from './thread';
 export default class Home extends React.Component {
     render() {
         const threads = Object.keys(this.props.threads).map(key =>
-            <Thread messages={this.props.threads[key]} name={key} />);
+            (<Thread
+                messages={this.props.threads[key].messages}
+                name={this.props.threads[key].name}
+                webSocket={this.props.webSocket}
+                id={key}
+            />));
 
         return (
             <div>
