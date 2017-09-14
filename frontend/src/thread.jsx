@@ -7,13 +7,18 @@ import {
 import Message from './message';
 
 export default class Thread extends React.Component {
-    constructor() {
+    constructor(props) {
         super();
         this.state = {
             newMessageText: '',
         };
+        this.bottomName = `bottomOfThread${props.threadId}`;
         this.handleNewMessageChange = this.handleNewMessageChange.bind(this);
         this.keyPress = this.keyPress.bind(this);
+    }
+
+    componentDidUpdate() {
+        this.refs[this.bottomName].scrollIntoView({ block: 'end', behavior: 'smooth' });
     }
 
     handleNewMessageChange(e) {
@@ -47,6 +52,7 @@ export default class Thread extends React.Component {
                 <div className="thread-body">
                     <div className="thread-messages">
                         {messages}
+                        <div ref={this.bottomName} />
                     </div>
 
                     <FormControl
@@ -67,5 +73,5 @@ Thread.propTypes = {
     messages: PropTypes.array.isRequired,
     name: PropTypes.string.isRequired,
     webSocket: PropTypes.object.isRequired,
-    id: PropTypes.number.isRequired,
+    threadId: PropTypes.number.isRequired,
 };

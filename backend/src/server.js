@@ -5,23 +5,70 @@ import * as websocket from 'websocket';
 
 let userLogged = false;
 let fbApi = null;
+let yourFbId = null;
+let friendList = [];
 
 let wsClientsCount = 0;
 const wsClients = [];
 
 const savedSessionFile = 'facebookSession.json';
+const friendListFile = 'facebookFriendList.json';
+
+
+function sendLoginDetails() {
+    console.log(JSON.stringify(friendList));
+    console.log(friendList);
+    wsClients.forEach((client) => {
+        client.sendUTF(JSON.stringify({
+            type: 'loginInfo',
+            yourFbId,
+            friendList: JSON.stringify(friendList),
+        }));
+    });
+}
+
+function getFriendList(callback) {
+    fbApi.getFriendsList((err, arr) => {
+        if (err) {
+            console.error('Error while getting friend list');
+            console.error(err);
+            return;
+        }
+
+        friendList = arr;
+
+        fs.writeFile(friendListFile, JSON.stringify(friendList));
+
+        if (typeof callback === 'function') {
+            callback();
+        }
+    });
+}
 
 console.log('Trying to restore session');
 if (fs.existsSync(savedSessionFile)) {
     fbApi = facebookChatApi({ appState: JSON.parse(fs.readFileSync(savedSessionFile, 'utf8')) }, (err, api) => {
         if (err) {
             console.error(err);
+            console.warn(`Moving session file to ${savedSessionFile}.bak`);
+            fs.renameSync(savedSessionFile, `${savedSessionFile}.bak`);
             return;
         }
 
         console.log('Restored session correctly');
         fbApi = api;
         userLogged = true;
+
+        // api stuff
+
+        yourFbId = api.getCurrentUserID();
+
+        if (fs.existsSync(friendListFile)) {
+            friendList = JSON.parse(fs.readFileSync(friendListFile));
+            sendLoginDetails();
+        } else {
+            getFriendList(() => sendLoginDetails());
+        }
 
         api.setOptions({ listenEvents: true });
         api.setOptions({ selfListen: true });
@@ -64,7 +111,12 @@ new websocket.server({
 
     wsClients[id] = connection;
 
-    connection.sendUTF(JSON.stringify({ type: 'hello', userLogged }));
+    connection.sendUTF(JSON.stringify({
+        type: 'hello',
+        userLogged,
+    }));
+
+    sendLoginDetails();
 
     connection.on('message', (message) => {
         console.log(`Received message: ${message.utf8Data}`);
@@ -92,8 +144,14 @@ new websocket.server({
                         return;
                     }
 
+                    yourFbId = api.getCurrentUserID();
+
                     console.log('Logged in correctly');
-                    connection.sendUTF(JSON.stringify({ type: 'info', info: 'Logged in' }));
+                    connection.sendUTF(JSON.stringify({
+                        type: 'info',
+                        info: 'Logged in',
+                    }));
+                    sendLoginDetails();
                     fs.writeFileSync(savedSessionFile, JSON.stringify(api.getAppState()));
                     fbApi = api;
                     userLogged = true;
@@ -108,6 +166,11 @@ new websocket.server({
 
             case 'sendMessage': {
                 fbApi.sendMessage('test', 100000000000000);
+                break;
+            }
+
+            case 'updateFriendList': {
+                getFriendList(() => JSON.stringify(friendList));
                 break;
             }
 

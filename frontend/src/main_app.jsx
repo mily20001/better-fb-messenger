@@ -16,6 +16,8 @@ class Main extends React.Component {
         this.state = {
             webSocketReconnectingId: 0,
             threads: {},
+            yourFbId: undefined,
+            friendList: [],
         };
         this.openWebSocket = this.openWebSocket.bind(this);
     }
@@ -30,6 +32,16 @@ class Main extends React.Component {
 
     componentDidMount() {
         this.notificationSystem = this.refs.notificationSystem;
+    }
+
+    getName(id) {
+        let name = '';
+        this.state.friendList.forEach((person) => {
+            if (person.userID === id) {
+                name = person.fullName;
+            }
+        });
+        return name;
     }
 
     openWebSocket() {
@@ -55,6 +67,12 @@ class Main extends React.Component {
                         level: 'info',
                     });
                 }
+                if (msg.type === 'loginInfo') {
+                    this.setState({
+                        friendList: JSON.parse(msg.friendList),
+                        yourFbId: msg.yourFbId,
+                    });
+                }
                 if (msg.type === 'message') {
                     this.notificationSystem.addNotification({
                         title: `New message from ${msg.event.senderID}`,
@@ -64,17 +82,18 @@ class Main extends React.Component {
 
                     const parsedMsg = {
                         id: msg.event.messageID,
-                        isYour: msg.event.senderID !== msg.event.threadID,
+                        isYour: msg.event.senderID === this.state.yourFbId,
                         body: msg.event.body,
                         timestamp: msg.event.timestamp,
-                        author: msg.event.senderID,
+                        author: this.getName(msg.event.senderID),
                     };
 
                     const tmpThreads = { ...this.state.threads };
-                    console.log(tmpThreads);
+                    // console.log(tmpThreads);
                     if (!(msg.event.threadID in tmpThreads)) {
                         tmpThreads[msg.event.threadID] = {
-                            name: msg.event.threadID,
+                            name: this.getName(msg.event.threadID),
+                            id: parseInt(msg.event.threadID, 10),
                             messages: [],
                         };
                     }
@@ -83,7 +102,7 @@ class Main extends React.Component {
                 }
                 if (msg.type === 'info') {
                     if (msg.info === 'Logged in') {
-                        this.setState({ userLogged: true});
+                        this.setState({ userLogged: true });
                     }
                     this.notificationSystem.addNotification({
                         message: msg.info,

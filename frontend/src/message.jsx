@@ -9,6 +9,7 @@ import {
 import messageStatus from './message_statuses';
 
 export default class Message extends React.Component {
+
     render() {
         if (this.props.isYour) {
             const msgStyle = {

@@ -15,7 +15,7 @@ export default class Home extends React.Component {
                 messages={this.props.threads[key].messages}
                 name={this.props.threads[key].name}
                 webSocket={this.props.webSocket}
-                id={key}
+                threadId={this.props.threads[key].id}
             />));
 
         return (
