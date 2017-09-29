@@ -29,7 +29,7 @@ export default class Thread extends React.Component {
     keyPress(e) {
         if (e.keyCode === 13) {
             console.log(`enter pressed: ${e.target.value}`);
-            this.props.webSocket.send(JSON.stringify({ type: 'message', body: e.target.value, id: this.props.id }));
+            this.props.webSocket.send(JSON.stringify({ type: 'message', body: e.target.value, id: this.props.threadId }));
             this.setState({ newMessageText: '' });
         }
     }
@@ -43,6 +43,7 @@ export default class Thread extends React.Component {
                 body={msg.body}
                 timestamp={msg.timestamp}
                 status={msg.status}
+                attachments={msg.attachments}
             />));
         return (
             <div

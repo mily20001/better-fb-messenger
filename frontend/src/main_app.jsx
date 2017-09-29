@@ -86,6 +86,7 @@ class Main extends React.Component {
                         body: msg.event.body,
                         timestamp: msg.event.timestamp,
                         author: this.getName(msg.event.senderID),
+                        attachments: msg.event.attachments,
                     };
 
                     const tmpThreads = { ...this.state.threads };

@@ -3,6 +3,8 @@ import fs from 'fs';
 import facebookChatApi from 'facebook-chat-api';
 import * as websocket from 'websocket';
 
+import fbListener from './fb_listener';
+
 let userLogged = false;
 let fbApi = null;
 let yourFbId = null;
@@ -11,9 +13,64 @@ let friendList = [];
 let wsClientsCount = 0;
 const wsClients = [];
 
+const threads = [];
+
 const savedSessionFile = 'facebookSession.json';
 const friendListFile = 'facebookFriendList.json';
 
+function addNewMessage(message) {
+    if (!(message.threadID in threads)) {
+        threads[message.threadID] = {
+            isGroup: message.isGroup,
+            unreadCount: 0,
+            messages: [],
+        };
+    }
+
+    /**
+     * isUnread - is unread by you
+     * readers - array of people who already read message, {reader: id, time: readTime}
+     */
+
+    const msg = {
+        attachments: message.attachments,
+        body: message.body,
+        mentions: message.mentions,
+        messageID: message.messageID,
+        senderID: message.senderID,
+        isUnread: message.isUnread,
+        readers: [],
+    };
+
+    if (msg.isUnread && msg.senderID === yourFbId) threads[msg.threadID].unreadCount++;
+
+    threads[msg.threadID].messages.push(msg);
+}
+
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
+function readMessage(youRead, event) {
+    if (!(event.threadID in threads)) return;
+
+    const thread = threads[event.threadID];
+
+    if (youRead) {
+        thread.unreadCount = 0;
+        thread.messages.forEach((msg) => {
+            if (msg.isUnread && msg.senderID !== yourFbId) {
+                msg.isUnread = false;
+                msg.readers.push({ reader: yourFbId, time: event.time });
+            }
+        });
+    } else {
+        thread.messages.forEach((msg) => {
+            if (msg.senderID !== yourFbId && !(event.reader in msg.readers)) {
+                msg.isUnread = false;
+                msg.readers.push({ reader: event.reader, time: event.time });
+            }
+        });
+    }
+}
 
 function sendLoginDetails() {
     console.log(JSON.stringify(friendList));
@@ -70,17 +127,9 @@ if (fs.existsSync(savedSessionFile)) {
             getFriendList(() => sendLoginDetails());
         }
 
-        api.setOptions({ listenEvents: true });
-        api.setOptions({ selfListen: true });
+        api.setOptions({ listenEvents: true, selfListen: true });
 
-        api.listen((err2, event) => {
-            console.log(event);
-            if (event.type === 'message') {
-                wsClients.forEach((client) => {
-                    client.sendUTF(JSON.stringify({ type: 'message', event }));
-                });
-            }
-        });
+        api.listen((err2, event) => fbListener(err2, event, wsClients, addNewMessage, readMessage));
     });
 } else {
     console.log('Session file not found');
@@ -155,6 +204,10 @@ new websocket.server({
                     fs.writeFileSync(savedSessionFile, JSON.stringify(api.getAppState()));
                     fbApi = api;
                     userLogged = true;
+
+                    api.setOptions({ listenEvents: true, selfListen: true });
+
+                    api.listen((err2, event) => fbListener(err2, event, wsClients, threads));
                 });
                 break;
             }

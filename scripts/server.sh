@@ -2,7 +2,7 @@
 
 ./node_modules/.bin/mkdirp ./backend/build/ ./frontend/build/
 
-build_server_cmd="node_modules/.bin/babel -o ./backend/build/server.js ./backend/src/server.js";
+build_server_cmd="node_modules/.bin/babel backend/src --out-dir ./backend/build/ --ignore .eslintrc";
 
 eval "${build_server_cmd}";
 
