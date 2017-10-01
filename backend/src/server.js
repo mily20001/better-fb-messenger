@@ -5,6 +5,8 @@ import * as websocket from 'websocket';
 
 import fbListener from './fb_listener';
 
+const MAX_MESSAGES_PER_THREAD = 100;
+
 let userLogged = false;
 let fbApi = null;
 let yourFbId = null;
@@ -24,6 +26,7 @@ function addNewMessage(message) {
             isGroup: message.isGroup,
             unreadCount: 0,
             messages: [],
+            lastMessageTime: 0,
         };
     }
 
@@ -39,12 +42,18 @@ function addNewMessage(message) {
         messageID: message.messageID,
         senderID: message.senderID,
         isUnread: message.isUnread,
+        timestamp: message.time,
         readers: [],
     };
 
     if (msg.isUnread && msg.senderID === yourFbId) threads[msg.threadID].unreadCount++;
 
+    threads[msg.threadID].lastMessageTime = msg.timestamp;
     threads[msg.threadID].messages.push(msg);
+
+    if (threads[msg.threadID].messages.length > MAX_MESSAGES_PER_THREAD) {
+        threads[msg.threadID].messages.shift();
+    }
 }
 
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -102,6 +111,23 @@ function getFriendList(callback) {
     });
 }
 
+function sendRecentThreads(wsID) {
+    let tmpArr = threads.map((thread, index) => ({ index, last: thread.lastMessageTime }));
+    const rescentThreads = [];
+    // sort indexes in descending times
+    tmpArr.sort((a, b) => (b.last - a.last));
+    // get first 5 indexes
+    tmpArr = tmpArr.slice(0, 5);
+    tmpArr.forEach((thread) => {
+        rescentThreads[thread.index] = threads[thread.index];
+    });
+
+    wsClients[wsID].sendUTF(JSON.stringify({
+        type: 'recentThreads',
+        threads: JSON.stringify(rescentThreads),
+    }));
+}
+
 console.log('Trying to restore session');
 if (fs.existsSync(savedSessionFile)) {
     fbApi = facebookChatApi({ appState: JSON.parse(fs.readFileSync(savedSessionFile, 'utf8')) }, (err, api) => {
@@ -124,6 +150,7 @@ if (fs.existsSync(savedSessionFile)) {
             friendList = JSON.parse(fs.readFileSync(friendListFile));
             sendLoginDetails();
         } else {
+            console.warn('Friend list file not found, creating one');
             getFriendList(() => sendLoginDetails());
         }
 
@@ -166,6 +193,8 @@ new websocket.server({
     }));
 
     sendLoginDetails();
+
+    sendRecentThreads(id);
 
     connection.on('message', (message) => {
         console.log(`Received message: ${message.utf8Data}`);
