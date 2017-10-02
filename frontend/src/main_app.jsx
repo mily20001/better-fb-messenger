@@ -73,13 +73,43 @@ class Main extends React.Component {
                         yourFbId: msg.yourFbId,
                     });
                 }
-                if (msg.type === 'message') {
-                    this.notificationSystem.addNotification({
-                        title: `New message from ${msg.event.senderID}`,
-                        message: msg.event.body,
-                        level: 'info',
+                if (msg.type === 'recentThreads') {
+                    const currentThreads = { ...this.state.threads };
+                    const tmpThreads = JSON.parse(msg.threads);
+                    Object.keys(tmpThreads).forEach((index) => {
+                        currentThreads[index] = {
+                            name: this.getName(index),
+                            id: parseInt(index, 10),
+                            messages: [],
+                            isGroup: tmpThreads[index].isGroup,
+                            unreadCount: tmpThreads[index].unreadCount,
+                        };
+
+                        currentThreads[index].messages = tmpThreads[index].messages.map(fbMsg => ({
+                            id: fbMsg.id,
+                            attachments: fbMsg.attachments,
+                            isYour: fbMsg.senderID === this.state.yourFbId,
+                            body: fbMsg.body,
+                            author: this.getName(fbMsg.senderID),
+                            timestamp: fbMsg.timestamp,
+                            mentions: fbMsg.mentions,
+                            isUnread: fbMsg.isUnread,
+                            readers: fbMsg.readers,
+                        }));
                     });
 
+                    this.setState({ threads: currentThreads });
+                }
+                if (msg.type === 'message') {
+                    if (msg.event.senderID !== this.state.yourFbId) {
+                        this.notificationSystem.addNotification({
+                            title: `New message from ${msg.event.senderID}`,
+                            message: msg.event.body,
+                            level: 'info',
+                        });
+                    }
+
+                    // TODO add support for mentions, readers, isUnread props
                     const parsedMsg = {
                         id: msg.event.messageID,
                         isYour: msg.event.senderID === this.state.yourFbId,

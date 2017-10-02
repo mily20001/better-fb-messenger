@@ -12,7 +12,7 @@ export default function fbListener(err, event, wsClients, addNewMessage, readMes
         });
     } else if (event.type === 'typ') {
         wsClients.forEach((client) => {
-            client.sendUTF(JSON.stringisfy({ type: 'typing', event }));
+            client.sendUTF(JSON.stringify({ type: 'typing', event }));
         });
     } else if (event.type === 'read') {
         readMessage(true, event);

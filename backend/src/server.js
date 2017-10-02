@@ -15,13 +15,14 @@ let friendList = [];
 let wsClientsCount = 0;
 const wsClients = [];
 
-const threads = [];
+const threads = {};
 
 const savedSessionFile = 'facebookSession.json';
 const friendListFile = 'facebookFriendList.json';
 
 function addNewMessage(message) {
     if (!(message.threadID in threads)) {
+        console.log('Adding new thread');
         threads[message.threadID] = {
             isGroup: message.isGroup,
             unreadCount: 0,
@@ -39,21 +40,25 @@ function addNewMessage(message) {
         attachments: message.attachments,
         body: message.body,
         mentions: message.mentions,
-        messageID: message.messageID,
+        id: message.messageID,
         senderID: message.senderID,
         isUnread: message.isUnread,
-        timestamp: message.time,
+        timestamp: parseInt(message.timestamp, 10),
         readers: [],
     };
 
-    if (msg.isUnread && msg.senderID === yourFbId) threads[msg.threadID].unreadCount++;
+    console.log('timestamp: ', msg.timestamp);
 
-    threads[msg.threadID].lastMessageTime = msg.timestamp;
-    threads[msg.threadID].messages.push(msg);
+    if (msg.isUnread && msg.senderID === yourFbId) threads[message.threadID].unreadCount++;
 
-    if (threads[msg.threadID].messages.length > MAX_MESSAGES_PER_THREAD) {
-        threads[msg.threadID].messages.shift();
+    threads[message.threadID].lastMessageTime = msg.timestamp;
+    threads[message.threadID].messages.push(msg);
+
+    if (threads[message.threadID].messages.length > MAX_MESSAGES_PER_THREAD) {
+        threads[message.threadID].messages.shift();
     }
+    console.log('Threads after adding message: ', JSON.stringify(threads));
+    console.log(threads[message.threadID]);
 }
 
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -82,8 +87,8 @@ function readMessage(youRead, event) {
 }
 
 function sendLoginDetails() {
-    console.log(JSON.stringify(friendList));
-    console.log(friendList);
+    // console.log(JSON.stringify(friendList));
+    // console.log(friendList);
     wsClients.forEach((client) => {
         client.sendUTF(JSON.stringify({
             type: 'loginInfo',
@@ -112,8 +117,9 @@ function getFriendList(callback) {
 }
 
 function sendRecentThreads(wsID) {
-    let tmpArr = threads.map((thread, index) => ({ index, last: thread.lastMessageTime }));
-    const rescentThreads = [];
+    console.log('threads: ', JSON.stringify(threads));
+    let tmpArr = Object.keys(threads).map(index => ({ index, last: threads[index].lastMessageTime }));
+    const rescentThreads = {};
     // sort indexes in descending times
     tmpArr.sort((a, b) => (b.last - a.last));
     // get first 5 indexes
