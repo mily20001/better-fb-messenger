@@ -44,6 +44,7 @@ export default class Thread extends React.Component {
                 timestamp={msg.timestamp}
                 status={msg.status}
                 attachments={msg.attachments}
+                emojis={msg.emojis}
             />));
         return (
             <div

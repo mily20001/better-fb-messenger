@@ -95,6 +95,7 @@ class Main extends React.Component {
                             mentions: fbMsg.mentions,
                             isUnread: fbMsg.isUnread,
                             readers: fbMsg.readers,
+                            emojis: fbMsg.emojis,
                         }));
                     });
 
@@ -117,6 +118,7 @@ class Main extends React.Component {
                         timestamp: msg.event.timestamp,
                         author: this.getName(msg.event.senderID),
                         attachments: msg.event.attachments,
+                        emojis: msg.event.emojis,
                     };
 
                     const tmpThreads = { ...this.state.threads };
