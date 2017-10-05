@@ -35,7 +35,7 @@ class Main extends React.Component {
     }
 
     getName(id) {
-        let name = '';
+        let name = id.toString();
         this.state.friendList.forEach((person) => {
             if (person.userID === id) {
                 name = person.fullName;
@@ -83,6 +83,7 @@ class Main extends React.Component {
                             messages: [],
                             isGroup: tmpThreads[index].isGroup,
                             unreadCount: tmpThreads[index].unreadCount,
+                            isTyping: false,
                         };
 
                         currentThreads[index].messages = tmpThreads[index].messages.map(fbMsg => ({
@@ -96,6 +97,7 @@ class Main extends React.Component {
                             isUnread: fbMsg.isUnread,
                             readers: fbMsg.readers,
                             emojis: fbMsg.emojis,
+                            emojisOnly: fbMsg.emojisOnly,
                         }));
                     });
 
@@ -119,6 +121,7 @@ class Main extends React.Component {
                         author: this.getName(msg.event.senderID),
                         attachments: msg.event.attachments,
                         emojis: msg.event.emojis,
+                        emojisOnly: msg.event.emojisOnly,
                     };
 
                     const tmpThreads = { ...this.state.threads };
@@ -128,6 +131,7 @@ class Main extends React.Component {
                             name: this.getName(msg.event.threadID),
                             id: parseInt(msg.event.threadID, 10),
                             messages: [],
+                            isTyping: false,
                         };
                     }
                     tmpThreads[msg.event.threadID].messages.push(parsedMsg);
@@ -141,6 +145,20 @@ class Main extends React.Component {
                         message: msg.info,
                         level: 'info',
                     });
+                }
+                if (msg.type === 'typing') {
+                    if (msg.event.threadID === this.state.yourFbId) {
+                        if (msg.event.userID in this.state.threads) {
+                            const tmpThreads = { ...this.state.threads };
+                            tmpThreads[msg.event.userID].isTyping = msg.event.isTyping;
+                            this.setState({ threads: tmpThreads });
+                        }
+                    } else if (msg.event.threadID in this.state.threads) {
+                        // group chat, id of typing user is event.from
+                        const tmpThreads = { ...this.state.threads };
+                        tmpThreads[msg.event.threadID].isTyping = msg.event.isTyping;
+                        this.setState({ threads: tmpThreads });
+                    }
                 }
                 if (msg.type === 'error') {
                     this.notificationSystem.addNotification({

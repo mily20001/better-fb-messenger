@@ -32,7 +32,8 @@ function parseEmojis(message) {
         emojis.push(fbApi.getEmojiUrl(match[0], 128, 1.0));
         match = regex.exec(parsed);
     }
-    return emojis;
+
+    return { emojis, emojisOnly: parsed.length === 0 };
 }
 
 function addNewMessage(message) {
@@ -51,7 +52,10 @@ function addNewMessage(message) {
      * readers - array of people who already read message, {reader: id, time: readTime}
      */
 
-    message.emojis = parseEmojis(message.body);
+    const tmpObj = parseEmojis(message.body);
+    message.emojis = tmpObj.emojis;
+    message.emojisOnly = tmpObj.emojisOnly;
+
 
     const msg = {
         attachments: message.attachments,
@@ -63,6 +67,7 @@ function addNewMessage(message) {
         timestamp: parseInt(message.timestamp, 10),
         readers: [],
         emojis: message.emojis,
+        emojisOnly: message.emojisOnly,
     };
 
     console.log('timestamp: ', msg.timestamp);

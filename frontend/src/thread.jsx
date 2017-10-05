@@ -35,6 +35,7 @@ export default class Thread extends React.Component {
     }
 
     render() {
+        const typing = this.props.isTyping ? 'typing' : '';
         const messages = this.props.messages.map(msg =>
             (<Message
                 key={msg.id}
@@ -45,6 +46,7 @@ export default class Thread extends React.Component {
                 status={msg.status}
                 attachments={msg.attachments}
                 emojis={msg.emojis}
+                emojisOnly={msg.emojisOnly}
             />));
         return (
             <div
@@ -54,6 +56,7 @@ export default class Thread extends React.Component {
                 <div className="thread-body">
                     <div className="thread-messages">
                         {messages}
+                        {typing}
                         <div ref={this.bottomName} />
                     </div>
 
@@ -76,4 +79,5 @@ Thread.propTypes = {
     name: PropTypes.string.isRequired,
     webSocket: PropTypes.object.isRequired,
     threadId: PropTypes.number.isRequired,
+    isTyping: PropTypes.bool.isRequired,
 };

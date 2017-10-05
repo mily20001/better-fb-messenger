@@ -16,6 +16,7 @@ export default class Home extends React.Component {
                 name={this.props.threads[key].name}
                 webSocket={this.props.webSocket}
                 threadId={this.props.threads[key].id}
+                isTyping={this.props.threads[key].isTyping}
             />));
 
         return (

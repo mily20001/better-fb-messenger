@@ -9,12 +9,23 @@ import {
 import messageStatus from './message_statuses';
 
 export default class Message extends React.Component {
+
+    shouldComponentUpdate() {
+        // for now this component should never update,
+        // in future it should update only on message read/delivery
+        return false;
+    }
+
     render() {
         const attachments = [];
 
         this.props.attachments.forEach((att) => {
             if (att.type === 'photo') {
-                attachments.push(<img src={att.largePreviewUrl} alt="facebook-img" />);
+                attachments.push(<img
+                    key={att.filename}
+                    src={att.largePreviewUrl}
+                    alt="facebook-img"
+                />);
             }
         });
 
@@ -24,6 +35,9 @@ export default class Message extends React.Component {
 
         let parsed = this.props.body;
         let lastSlice = 0;
+        const emojisClass = this.props.emojisOnly ? 'emoji-big' : 'emoji-small';
+
+        console.log('emojisonly: ', this.props.emojisOnly);
 
         let match = regex.exec(this.props.body);
         while (match !== null) {
@@ -31,10 +45,12 @@ export default class Message extends React.Component {
             body.push(parsed.substr(lastSlice, match.index - lastSlice));
             lastSlice = match.index;
             console.log('emoji url:', this.props.emojis[0]);
-            body.push(<img src={`${this.props.emojis[0]}`} alt="emoji" />);
+            body.push(<img className={emojisClass} src={`${this.props.emojis[0]}`} alt="emoji" />);
             this.props.emojis.shift();
             match = regex.exec(parsed);
         }
+
+        console.log('lenght: ', parsed.length);
 
         body.push(parsed.substr(lastSlice));
 
@@ -75,6 +91,7 @@ Message.propTypes = {
     author: PropTypes.string.isRequired,
     body: PropTypes.string.isRequired,
     timestamp: PropTypes.number.isRequired,
+    emojisOnly: PropTypes.bool.isRequired,
     status: PropTypes.number,
     attachments: PropTypes.array,
     emojis: PropTypes.array,
