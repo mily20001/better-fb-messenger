@@ -9,6 +9,7 @@ import NotificationSystem from 'react-notification-system';
 
 import Home from './home';
 import Login from './login';
+import Modal from './modal';
 
 class Main extends React.Component {
     constructor() {
@@ -18,8 +19,11 @@ class Main extends React.Component {
             threads: {},
             yourFbId: undefined,
             friendList: [],
+            isModalOpen: false,
+            modalContent: (<div>placeholder</div>),
         };
         this.openWebSocket = this.openWebSocket.bind(this);
+        this.closeModal = this.closeModal.bind(this);
     }
 
     componentWillMount() {
@@ -42,6 +46,10 @@ class Main extends React.Component {
             }
         });
         return name;
+    }
+
+    closeModal() {
+        this.setState({ isModalOpen: false });
     }
 
     openWebSocket() {
@@ -207,8 +215,19 @@ class Main extends React.Component {
                             }
                         />))}
                     <Route path="/login" render={() => <Login webSocket={this.webSocket} />} />
-                    {(this.state.userLogged === false) ? <Redirect push to="/login" /> : <Redirect push to="/" />}
+                    {(this.state.userLogged === false) ?
+                        <Redirect push to="/login" /> : <Redirect push to="/" />}
                     <NotificationSystem ref="notificationSystem" />
+                    <Modal
+                        content={this.state.modalContent}
+                        isOpen={this.state.isModalOpen}
+                        closeModal={this.closeModal}
+                    />
+                    <button
+                        onClick={() => this.setState({ isModalOpen: !this.state.isModalOpen })}
+                    >
+                        Open Modal
+                    </button>
                 </div>
             </Router>
         );

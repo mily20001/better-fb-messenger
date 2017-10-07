@@ -284,6 +284,25 @@ new websocket.server({
                 break;
             }
 
+            case 'resolvePhotoUrl': {
+                fbApi.resolvePhotoUrl(parsedData.photoID, (err, url) => {
+                    if (err) {
+                        connection.sendUTF(JSON.stringify({
+                            type: 'resolvedPhotoUrl',
+                            photoID: parsedData.photoID,
+                            url: 'error',
+                        }));
+                        return;
+                    }
+                    connection.sendUTF(JSON.stringify({
+                        type: 'resolvedPhotoUrl',
+                        photoID: parsedData.photoID,
+                        url,
+                    }));
+                });
+                break;
+            }
+
             case 'updateFriendList': {
                 getFriendList(() => JSON.stringify(friendList));
                 break;
