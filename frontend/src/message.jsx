@@ -33,6 +33,21 @@ export default class Message extends React.Component {
                     alt="facebook-img"
                     onClick={() => this.openBigImage(att.ID)}
                 />);
+            } else if (att.type === 'video') {
+                attachments.push(<video
+                    className="message-video"
+                    key={att.filename}
+                    src={att.url}
+                />);
+            } else if (att.type === 'sticker') {
+                attachments.push(<img
+                    className="message-sticker"
+                    key={att.filename}
+                    src={att.url}
+                    width={att.width}
+                    height={att.height}
+                    alt="sticker"
+                />);
             }
         });
 
