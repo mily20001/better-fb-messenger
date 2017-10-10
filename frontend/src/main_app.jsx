@@ -20,10 +20,11 @@ class Main extends React.Component {
             yourFbId: undefined,
             friendList: [],
             isModalOpen: false,
-            modalContent: (<div>placeholder</div>),
+            modalContent: (<div>Loading...</div>),
         };
         this.openWebSocket = this.openWebSocket.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.openModal = this.openModal.bind(this);
     }
 
     componentWillMount() {
@@ -50,6 +51,12 @@ class Main extends React.Component {
 
     closeModal() {
         this.setState({ isModalOpen: false });
+    }
+
+    openModal(content) {
+        this.setState({
+            isModalOpen: true,
+            modalContent: content === undefined ? (<div>Loading...</div>) : (content) });
     }
 
     openWebSocket() {
@@ -168,6 +175,13 @@ class Main extends React.Component {
                         this.setState({ threads: tmpThreads });
                     }
                 }
+                if (msg.type === 'resolvedPhotoUrl') {
+                    if (msg.url === 'error') {
+                        this.setState({ modalContent: (<div>Error while loading image!</div>) });
+                    } else {
+                        this.setState({ modalContent: (<img src={msg.url} alt="big" />) });
+                    }
+                }
                 if (msg.type === 'error') {
                     this.notificationSystem.addNotification({
                         message: msg.error,
@@ -211,6 +225,7 @@ class Main extends React.Component {
                                 (<Home
                                     threads={this.state.threads}
                                     webSocket={this.webSocket}
+                                    openModal={this.openModal}
                                 />)
                             }
                         />))}
@@ -223,11 +238,6 @@ class Main extends React.Component {
                         isOpen={this.state.isModalOpen}
                         closeModal={this.closeModal}
                     />
-                    <button
-                        onClick={() => this.setState({ isModalOpen: !this.state.isModalOpen })}
-                    >
-                        Open Modal
-                    </button>
                 </div>
             </Router>
         );

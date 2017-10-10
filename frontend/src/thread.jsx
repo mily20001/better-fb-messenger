@@ -47,6 +47,8 @@ export default class Thread extends React.Component {
                 attachments={msg.attachments}
                 emojis={msg.emojis}
                 emojisOnly={msg.emojisOnly}
+                openModal={this.props.openModal}
+                webSocket={this.props.webSocket}
             />));
         return (
             <div
@@ -80,4 +82,5 @@ Thread.propTypes = {
     webSocket: PropTypes.object.isRequired,
     threadId: PropTypes.number.isRequired,
     isTyping: PropTypes.bool.isRequired,
+    openModal: PropTypes.func.isRequired,
 };

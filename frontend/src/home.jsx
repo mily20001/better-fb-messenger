@@ -17,6 +17,7 @@ export default class Home extends React.Component {
                 webSocket={this.props.webSocket}
                 threadId={this.props.threads[key].id}
                 isTyping={this.props.threads[key].isTyping}
+                openModal={this.props.openModal}
             />));
 
         return (
@@ -37,4 +38,5 @@ export default class Home extends React.Component {
 Home.propTypes = {
     webSocket: PropTypes.object.isRequired,
     threads: PropTypes.object.isRequired,
+    openModal: PropTypes.func.isRequired,
 };

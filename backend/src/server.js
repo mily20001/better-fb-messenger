@@ -11,6 +11,7 @@ let userLogged = false;
 let fbApi = null;
 let yourFbId = null;
 let friendList = [];
+const photoUrlCache = {};
 
 let wsClientsCount = 0;
 const wsClients = [];
@@ -285,21 +286,32 @@ new websocket.server({
             }
 
             case 'resolvePhotoUrl': {
-                fbApi.resolvePhotoUrl(parsedData.photoID, (err, url) => {
-                    if (err) {
-                        connection.sendUTF(JSON.stringify({
-                            type: 'resolvedPhotoUrl',
-                            photoID: parsedData.photoID,
-                            url: 'error',
-                        }));
-                        return;
-                    }
+                if (photoUrlCache[parsedData.photoID] !== undefined) {
                     connection.sendUTF(JSON.stringify({
                         type: 'resolvedPhotoUrl',
                         photoID: parsedData.photoID,
-                        url,
+                        url: photoUrlCache[parsedData.photoID],
                     }));
-                });
+                } else {
+                    fbApi.resolvePhotoUrl(parsedData.photoID, (err, url) => {
+                        if (err) {
+                            connection.sendUTF(JSON.stringify({
+                                type: 'resolvedPhotoUrl',
+                                photoID: parsedData.photoID,
+                                url: 'error',
+                            }));
+                            return;
+                        }
+
+                        photoUrlCache[parsedData.photoID] = url;
+
+                        connection.sendUTF(JSON.stringify({
+                            type: 'resolvedPhotoUrl',
+                            photoID: parsedData.photoID,
+                            url,
+                        }));
+                    });
+                }
                 break;
             }
 
@@ -307,16 +319,6 @@ new websocket.server({
                 getFriendList(() => JSON.stringify(friendList));
                 break;
             }
-            //
-            // case 'getEmojiUrl': {
-            //     // TODO add url caching
-            //     const url = fbApi.getEmojiUrl(parsedData.emoji, 128);
-            //     connection.sendUTF(JSON.stringify({
-            //         type: 'emojiUrl',
-            //         url,
-            //     }));
-            //     break;
-            // }
 
             case undefined:
                 console.log('Error while parsing data from websocket: message has no type');

@@ -16,15 +16,22 @@ export default class Message extends React.Component {
         return false;
     }
 
+    openBigImage(photoID) {
+        this.props.webSocket.send(JSON.stringify({ type: 'resolvePhotoUrl', photoID }));
+        this.props.openModal();
+    }
+
     render() {
         const attachments = [];
 
         this.props.attachments.forEach((att) => {
             if (att.type === 'photo') {
                 attachments.push(<img
+                    className="message-img"
                     key={att.filename}
                     src={att.largePreviewUrl}
                     alt="facebook-img"
+                    onClick={() => this.openBigImage(att.ID)}
                 />);
             }
         });
@@ -95,6 +102,8 @@ Message.propTypes = {
     status: PropTypes.number,
     attachments: PropTypes.array,
     emojis: PropTypes.array,
+    openModal: PropTypes.func.isRequired,
+    webSocket: PropTypes.object.isRequired,
 };
 
 Message.defaultProps = {
