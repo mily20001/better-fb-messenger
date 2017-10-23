@@ -7,6 +7,7 @@ import {
 } from 'react-bootstrap';
 
 import messageStatus from './message_statuses';
+import Sticker from './sticker';
 
 export default class Message extends React.Component {
 
@@ -40,14 +41,8 @@ export default class Message extends React.Component {
                     src={att.url}
                 />);
             } else if (att.type === 'sticker') {
-                attachments.push(<img
-                    className="message-sticker"
-                    key={att.filename}
-                    src={att.url}
-                    width={att.width}
-                    height={att.height}
-                    alt="sticker"
-                />);
+                console.log(att);
+                attachments.push(<Sticker sticker={att} />);
             }
         });
 

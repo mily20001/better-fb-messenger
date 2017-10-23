@@ -10,3 +10,4 @@ frontend/build/*.js
 frontend/build/*.css
 facebookSession.json
 facebookFriendList.json
+*.tmp-browserify*
